@@ -47,23 +47,31 @@ class EmailController extends Controller
         ]);
     }
 
+    /**
+     * Live (not-yet-sent) draft of what each email will look like, built from
+     * the same `lostandfound.emails.*` lists the real Jobs send to — so the
+     * preview always matches reality, including when an address list has
+     * more than one recipient.
+     */
     private function draftFor(string $type, $handoverDate): array
     {
         $officeLocation = config('lostandfound.office_location');
+        $fromAddress = config('mail.from.address');
+        $office = implode(', ', config('lostandfound.emails.office'));
 
         return match ($type) {
             'comms_notice' => [
-                'from' => config('lostandfound.emails.office'),
-                'to' => config('lostandfound.emails.communications'),
-                'cc' => null,
+                'from' => $fromAddress,
+                'to' => implode(', ', config('lostandfound.emails.communications')),
+                'cc' => $office,
                 'subject' => 'Disposal Notice: Unclaimed Lost & Found Items',
                 'body' => view('emails.templates.comms_notice', compact('handoverDate', 'officeLocation'))->render(),
                 'is_live' => false,
                 'sent_at' => null,
             ],
             'student_notice' => [
-                'from' => config('lostandfound.emails.communications'),
-                'to' => 'students@strathmore.edu',
+                'from' => $fromAddress,
+                'to' => implode(', ', config('lostandfound.emails.students_list')),
                 'cc' => null,
                 'subject' => 'One week to collect your item from Lost & Found',
                 'body' => view('emails.templates.student_notice', compact('handoverDate', 'officeLocation'))->render(),
@@ -71,9 +79,9 @@ class EmailController extends Controller
                 'sent_at' => null,
             ],
             default => [
-                'from' => config('lostandfound.emails.office'),
-                'to' => config('lostandfound.emails.outreach'),
-                'cc' => null,
+                'from' => $fromAddress,
+                'to' => implode(', ', config('lostandfound.emails.outreach')),
+                'cc' => $office,
                 'subject' => 'Disposed items — handover for donation',
                 'body' => view('emails.templates.outreach_handover', ['officeLocation' => $officeLocation, 'releasedCount' => null])->render(),
                 'is_live' => false,

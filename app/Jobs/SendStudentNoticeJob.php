@@ -21,16 +21,21 @@ class SendStudentNoticeJob implements ShouldQueue
     public function handle(): void
     {
         $to = config('lostandfound.emails.students_list');
+        $replyTo = config('lostandfound.emails.reply_to');
         $officeLocation = config('lostandfound.office_location');
 
         $mailable = new StudentNoticeMail($this->batch->handover_due_at, $officeLocation);
+
+        if (! empty($replyTo)) {
+            $mailable->replyTo($replyTo);
+        }
 
         Mail::to($to)->send($mailable);
 
         SentEmail::create([
             'type' => 'student_notice',
             'from_address' => config('mail.from.address'),
-            'to_address' => $to,
+            'to_address' => implode(', ', $to),
             'subject' => 'One week to collect your item from Lost & Found',
             'body_html' => $mailable->render(),
             'disposal_batch_id' => $this->batch->id,

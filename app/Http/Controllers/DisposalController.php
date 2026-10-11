@@ -37,9 +37,9 @@ class DisposalController extends Controller
             'pickupComplete' => $pickupComplete,
             'collectedCount' => $collectedCount,
             'officeLocation' => config('lostandfound.office_location'),
-            'commsEmail' => config('lostandfound.emails.communications'),
-            'officeEmail' => config('lostandfound.emails.office'),
-            'outreachEmail' => config('lostandfound.emails.outreach'),
+            'commsEmail' => implode(', ', config('lostandfound.emails.communications')),
+            'officeEmail' => implode(', ', config('lostandfound.emails.office')),
+            'outreachEmail' => implode(', ', config('lostandfound.emails.outreach')),
             'automationEnabled' => config('lostandfound.automation_enabled', true),
         ]);
     }

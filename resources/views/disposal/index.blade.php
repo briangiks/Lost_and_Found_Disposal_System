@@ -21,7 +21,7 @@
         </p>
         @if ($automationEnabled)
             <p class="mt-2 inline-flex items-center gap-1.5 text-xs px-2 py-1 rounded-md bg-emerald-100 text-emerald-700 border border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700">
-                <x-icon name="clock" class="w-3 h-3" /> Automation is ON — the scheduler will send notices and release this batch on its own if nobody clicks through manually. See <code>php artisan disposal:process-cycle</code>.
+                <x-icon name="clock" class="w-3 h-3" /> Automation is ON — the scheduler will send notices and release this batch on its own if nobody clicks through manually.
             </p>
         @endif
     </div>

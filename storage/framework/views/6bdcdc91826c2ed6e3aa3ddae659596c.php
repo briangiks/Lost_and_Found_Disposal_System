@@ -38,7 +38,7 @@
 <?php if (isset($__componentOriginalce262628e3a8d44dc38fd1f3965181bc)): ?>
 <?php $component = $__componentOriginalce262628e3a8d44dc38fd1f3965181bc; ?>
 <?php unset($__componentOriginalce262628e3a8d44dc38fd1f3965181bc); ?>
-<?php endif; ?> Automation is ON — the scheduler will send notices and release this batch on its own if nobody clicks through manually. See <code>php artisan disposal:process-cycle</code>.
+<?php endif; ?> Automation is ON — the scheduler will send notices and release this batch on its own if nobody clicks through manually.
             </p>
         <?php endif; ?>
     </div>

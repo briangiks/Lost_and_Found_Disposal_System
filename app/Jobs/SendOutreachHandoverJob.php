@@ -24,16 +24,23 @@ class SendOutreachHandoverJob implements ShouldQueue
     public function handle(): void
     {
         $to = config('lostandfound.emails.outreach');
+        $cc = config('lostandfound.emails.office');
+        $replyTo = config('lostandfound.emails.reply_to');
         $officeLocation = config('lostandfound.office_location');
 
         $mailable = new OutreachHandoverMail($officeLocation, $this->releasedCount);
 
-        Mail::to($to)->send($mailable);
+        if (! empty($replyTo)) {
+            $mailable->replyTo($replyTo);
+        }
+
+        Mail::to($to)->cc($cc)->send($mailable);
 
         SentEmail::create([
             'type' => 'outreach_handover',
             'from_address' => config('mail.from.address'),
-            'to_address' => $to,
+            'to_address' => implode(', ', $to),
+            'cc_address' => implode(', ', $cc),
             'subject' => 'Disposed items — handover for donation',
             'body_html' => $mailable->render(),
             'disposal_batch_id' => $this->batch->id,

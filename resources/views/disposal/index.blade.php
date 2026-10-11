@@ -19,6 +19,11 @@
             Every three months, all unclaimed items in custody are handed over to the Community Outreach Club.
             Follow the steps below to complete this quarter's cycle — batch <span class="font-mono">#{{ $batch->reference }}</span>.
         </p>
+        @if ($automationEnabled)
+            <p class="mt-2 inline-flex items-center gap-1.5 text-xs px-2 py-1 rounded-md bg-emerald-100 text-emerald-700 border border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700">
+                <x-icon name="clock" class="w-3 h-3" /> Automation is ON — the scheduler will send notices and release this batch on its own if nobody clicks through manually. See <code>php artisan disposal:process-cycle</code>.
+            </p>
+        @endif
     </div>
 
     <ol class="grid sm:grid-cols-2 md:grid-cols-4 gap-3">
@@ -183,12 +188,18 @@
                 </div>
                 <div class="flex gap-2">
                     <a href="{{ route('audit.index') }}" class="px-3 py-2 rounded-md border dark:border-slate-600 text-sm">View audit log</a>
-                    <form method="POST" action="{{ route('disposal.release', $batch) }}">
-                        @csrf
-                        <button type="submit" class="px-4 py-2 rounded-md bg-brand-red text-white text-sm font-medium inline-flex items-center gap-2">
-                            <x-icon name="gift" class="w-4 h-4" /> Confirm handover
-                        </button>
-                    </form>
+                    @can('release', $batch)
+                        <form method="POST" action="{{ route('disposal.release', $batch) }}">
+                            @csrf
+                            <button type="submit" class="px-4 py-2 rounded-md bg-brand-red text-white text-sm font-medium inline-flex items-center gap-2">
+                                <x-icon name="gift" class="w-4 h-4" /> Confirm handover
+                            </button>
+                        </form>
+                    @else
+                        <span class="px-4 py-2 rounded-md bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-sm font-medium inline-flex items-center gap-2" title="Only an admin account can confirm the handover.">
+                            <x-icon name="lock" class="w-4 h-4" /> Admin approval required
+                        </span>
+                    @endcan
                 </div>
             </div>
         </div>

@@ -17,6 +17,30 @@
             Every three months, all unclaimed items in custody are handed over to the Community Outreach Club.
             Follow the steps below to complete this quarter's cycle — batch <span class="font-mono">#<?php echo e($batch->reference); ?></span>.
         </p>
+        <?php if($automationEnabled): ?>
+            <p class="mt-2 inline-flex items-center gap-1.5 text-xs px-2 py-1 rounded-md bg-emerald-100 text-emerald-700 border border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700">
+                <?php if (isset($component)) { $__componentOriginalce262628e3a8d44dc38fd1f3965181bc = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginalce262628e3a8d44dc38fd1f3965181bc = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.icon','data' => ['name' => 'clock','class' => 'w-3 h-3']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('icon'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['name' => 'clock','class' => 'w-3 h-3']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginalce262628e3a8d44dc38fd1f3965181bc)): ?>
+<?php $attributes = $__attributesOriginalce262628e3a8d44dc38fd1f3965181bc; ?>
+<?php unset($__attributesOriginalce262628e3a8d44dc38fd1f3965181bc); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalce262628e3a8d44dc38fd1f3965181bc)): ?>
+<?php $component = $__componentOriginalce262628e3a8d44dc38fd1f3965181bc; ?>
+<?php unset($__componentOriginalce262628e3a8d44dc38fd1f3965181bc); ?>
+<?php endif; ?> Automation is ON — the scheduler will send notices and release this batch on its own if nobody clicks through manually. See <code>php artisan disposal:process-cycle</code>.
+            </p>
+        <?php endif; ?>
     </div>
 
     <ol class="grid sm:grid-cols-2 md:grid-cols-4 gap-3">
@@ -277,10 +301,11 @@
                 </div>
                 <div class="flex gap-2">
                     <a href="<?php echo e(route('audit.index')); ?>" class="px-3 py-2 rounded-md border dark:border-slate-600 text-sm">View audit log</a>
-                    <form method="POST" action="<?php echo e(route('disposal.release', $batch)); ?>">
-                        <?php echo csrf_field(); ?>
-                        <button type="submit" class="px-4 py-2 rounded-md bg-brand-red text-white text-sm font-medium inline-flex items-center gap-2">
-                            <?php if (isset($component)) { $__componentOriginalce262628e3a8d44dc38fd1f3965181bc = $component; } ?>
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('release', $batch)): ?>
+                        <form method="POST" action="<?php echo e(route('disposal.release', $batch)); ?>">
+                            <?php echo csrf_field(); ?>
+                            <button type="submit" class="px-4 py-2 rounded-md bg-brand-red text-white text-sm font-medium inline-flex items-center gap-2">
+                                <?php if (isset($component)) { $__componentOriginalce262628e3a8d44dc38fd1f3965181bc = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginalce262628e3a8d44dc38fd1f3965181bc = $attributes; } ?>
 <?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.icon','data' => ['name' => 'gift','class' => 'w-4 h-4']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('icon'); ?>
@@ -300,8 +325,32 @@
 <?php $component = $__componentOriginalce262628e3a8d44dc38fd1f3965181bc; ?>
 <?php unset($__componentOriginalce262628e3a8d44dc38fd1f3965181bc); ?>
 <?php endif; ?> Confirm handover
-                        </button>
-                    </form>
+                            </button>
+                        </form>
+                    <?php else: ?>
+                        <span class="px-4 py-2 rounded-md bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-sm font-medium inline-flex items-center gap-2" title="Only an admin account can confirm the handover.">
+                            <?php if (isset($component)) { $__componentOriginalce262628e3a8d44dc38fd1f3965181bc = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginalce262628e3a8d44dc38fd1f3965181bc = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.icon','data' => ['name' => 'lock','class' => 'w-4 h-4']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('icon'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['name' => 'lock','class' => 'w-4 h-4']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginalce262628e3a8d44dc38fd1f3965181bc)): ?>
+<?php $attributes = $__attributesOriginalce262628e3a8d44dc38fd1f3965181bc; ?>
+<?php unset($__attributesOriginalce262628e3a8d44dc38fd1f3965181bc); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalce262628e3a8d44dc38fd1f3965181bc)): ?>
+<?php $component = $__componentOriginalce262628e3a8d44dc38fd1f3965181bc; ?>
+<?php unset($__componentOriginalce262628e3a8d44dc38fd1f3965181bc); ?>
+<?php endif; ?> Admin approval required
+                        </span>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

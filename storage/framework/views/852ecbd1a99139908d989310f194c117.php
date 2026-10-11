@@ -58,6 +58,7 @@
                         ['route' => 'disposal.index', 'label' => 'Disposal Workflow', 'icon' => 'workflow'],
                         ['route' => 'emails.index', 'label' => 'Email Preview', 'icon' => 'mail'],
                         ['route' => 'audit.index', 'label' => 'Audit Log', 'icon' => 'clipboard-list'],
+                        ['route' => 'reports.index', 'label' => 'Reports', 'icon' => 'package'],
                     ];
                 ?>
                 <?php $__currentLoopData = $navItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
@@ -132,8 +133,12 @@
 <?php unset($__componentOriginalce262628e3a8d44dc38fd1f3965181bc); ?>
 <?php endif; ?>
                 </button>
-                <button class="relative p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700" aria-label="Notifications">
-                    <?php if (isset($component)) { $__componentOriginalce262628e3a8d44dc38fd1f3965181bc = $component; } ?>
+
+                <?php if(auth()->guard()->check()): ?>
+                    <?php $unread = auth()->user()->unreadNotifications()->latest()->take(6)->get(); ?>
+                    <div class="relative" x-data="{ notifOpen: false }" @click.outside="notifOpen = false">
+                        <button @click="notifOpen = !notifOpen" class="relative p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700" aria-label="Notifications">
+                            <?php if (isset($component)) { $__componentOriginalce262628e3a8d44dc38fd1f3965181bc = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginalce262628e3a8d44dc38fd1f3965181bc = $attributes; } ?>
 <?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.icon','data' => ['name' => 'bell','class' => 'w-5 h-5']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('icon'); ?>
@@ -153,8 +158,54 @@
 <?php $component = $__componentOriginalce262628e3a8d44dc38fd1f3965181bc; ?>
 <?php unset($__componentOriginalce262628e3a8d44dc38fd1f3965181bc); ?>
 <?php endif; ?>
-                    <span class="absolute top-1 right-1 w-2 h-2 bg-brand-red rounded-full"></span>
-                </button>
+                            <?php if($unread->count() > 0): ?>
+                                <span class="absolute top-1 right-1 w-2 h-2 bg-brand-red rounded-full"></span>
+                            <?php endif; ?>
+                        </button>
+                        <div x-show="notifOpen" x-cloak x-transition
+                             class="absolute right-0 mt-2 w-80 rounded-lg border bg-white dark:bg-slate-800 dark:border-slate-700 shadow-xl z-40 overflow-hidden">
+                            <div class="flex items-center justify-between px-4 py-2.5 border-b dark:border-slate-700">
+                                <span class="text-sm font-semibold">Notifications</span>
+                                <a href="<?php echo e(route('notifications.index')); ?>" class="text-xs text-brand-blue hover:underline">View all</a>
+                            </div>
+                            <div class="max-h-80 overflow-y-auto divide-y dark:divide-slate-700">
+                                <?php $__empty_1 = true; $__currentLoopData = $unread; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $n): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                    <form method="POST" action="<?php echo e(route('notifications.read', $n->id)); ?>">
+                                        <?php echo csrf_field(); ?>
+                                        <button type="submit" class="w-full text-left px-4 py-3 text-sm hover:bg-slate-50 dark:hover:bg-slate-700/40 flex gap-2.5">
+                                            <?php if (isset($component)) { $__componentOriginalce262628e3a8d44dc38fd1f3965181bc = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginalce262628e3a8d44dc38fd1f3965181bc = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.icon','data' => ['name' => $n->data['icon'] ?? 'bell','class' => 'w-4 h-4 mt-0.5 text-brand-blue shrink-0']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('icon'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['name' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($n->data['icon'] ?? 'bell'),'class' => 'w-4 h-4 mt-0.5 text-brand-blue shrink-0']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginalce262628e3a8d44dc38fd1f3965181bc)): ?>
+<?php $attributes = $__attributesOriginalce262628e3a8d44dc38fd1f3965181bc; ?>
+<?php unset($__attributesOriginalce262628e3a8d44dc38fd1f3965181bc); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalce262628e3a8d44dc38fd1f3965181bc)): ?>
+<?php $component = $__componentOriginalce262628e3a8d44dc38fd1f3965181bc; ?>
+<?php unset($__componentOriginalce262628e3a8d44dc38fd1f3965181bc); ?>
+<?php endif; ?>
+                                            <span>
+                                                <span class="block font-medium"><?php echo e($n->data['title'] ?? 'Notification'); ?></span>
+                                                <span class="block text-xs text-slate-500 dark:text-slate-400 mt-0.5"><?php echo e($n->data['body'] ?? ''); ?></span>
+                                            </span>
+                                        </button>
+                                    </form>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                                    <div class="px-4 py-6 text-sm text-center text-slate-500 dark:text-slate-400">You're all caught up.</div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
                 <div class="hidden sm:flex items-center gap-2 pl-3 border-l dark:border-slate-700">
                     <div class="w-9 h-9 rounded-full bg-brand-red/10 border border-brand-red/20 flex items-center justify-center overflow-hidden">
                         <img src="<?php echo e(asset('images/admin-avatar.png')); ?>" alt="Admin" class="w-7 h-7 object-contain">

@@ -58,6 +58,7 @@
                         ['route' => 'disposal.index', 'label' => 'Disposal Workflow', 'icon' => 'workflow'],
                         ['route' => 'emails.index', 'label' => 'Email Preview', 'icon' => 'mail'],
                         ['route' => 'audit.index', 'label' => 'Audit Log', 'icon' => 'clipboard-list'],
+                        ['route' => 'reports.index', 'label' => 'Reports', 'icon' => 'package'],
                     ];
                 @endphp
                 @foreach ($navItems as $item)
@@ -74,10 +75,41 @@
                     <x-icon name="sun" class="w-5 h-5" x-show="dark" x-cloak />
                     <x-icon name="moon" class="w-5 h-5" x-show="!dark" />
                 </button>
-                <button class="relative p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700" aria-label="Notifications">
-                    <x-icon name="bell" class="w-5 h-5" />
-                    <span class="absolute top-1 right-1 w-2 h-2 bg-brand-red rounded-full"></span>
-                </button>
+
+                @auth
+                    @php $unread = auth()->user()->unreadNotifications()->latest()->take(6)->get(); @endphp
+                    <div class="relative" x-data="{ notifOpen: false }" @click.outside="notifOpen = false">
+                        <button @click="notifOpen = !notifOpen" class="relative p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700" aria-label="Notifications">
+                            <x-icon name="bell" class="w-5 h-5" />
+                            @if ($unread->count() > 0)
+                                <span class="absolute top-1 right-1 w-2 h-2 bg-brand-red rounded-full"></span>
+                            @endif
+                        </button>
+                        <div x-show="notifOpen" x-cloak x-transition
+                             class="absolute right-0 mt-2 w-80 rounded-lg border bg-white dark:bg-slate-800 dark:border-slate-700 shadow-xl z-40 overflow-hidden">
+                            <div class="flex items-center justify-between px-4 py-2.5 border-b dark:border-slate-700">
+                                <span class="text-sm font-semibold">Notifications</span>
+                                <a href="{{ route('notifications.index') }}" class="text-xs text-brand-blue hover:underline">View all</a>
+                            </div>
+                            <div class="max-h-80 overflow-y-auto divide-y dark:divide-slate-700">
+                                @forelse ($unread as $n)
+                                    <form method="POST" action="{{ route('notifications.read', $n->id) }}">
+                                        @csrf
+                                        <button type="submit" class="w-full text-left px-4 py-3 text-sm hover:bg-slate-50 dark:hover:bg-slate-700/40 flex gap-2.5">
+                                            <x-icon :name="$n->data['icon'] ?? 'bell'" class="w-4 h-4 mt-0.5 text-brand-blue shrink-0" />
+                                            <span>
+                                                <span class="block font-medium">{{ $n->data['title'] ?? 'Notification' }}</span>
+                                                <span class="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ $n->data['body'] ?? '' }}</span>
+                                            </span>
+                                        </button>
+                                    </form>
+                                @empty
+                                    <div class="px-4 py-6 text-sm text-center text-slate-500 dark:text-slate-400">You're all caught up.</div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+                @endauth
                 <div class="hidden sm:flex items-center gap-2 pl-3 border-l dark:border-slate-700">
                     <div class="w-9 h-9 rounded-full bg-brand-red/10 border border-brand-red/20 flex items-center justify-center overflow-hidden">
                         <img src="{{ asset('images/admin-avatar.png') }}" alt="Admin" class="w-7 h-7 object-contain">

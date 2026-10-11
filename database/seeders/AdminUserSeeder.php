@@ -18,5 +18,17 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('Demo1234'),
             ]
         );
+
+        // Day-to-day desk staff: can log/edit/claim items and send disposal
+        // notices, but cannot delete items or confirm a batch handover
+        // (see app/Policies/ItemPolicy.php and DisposalBatchPolicy.php).
+        User::updateOrCreate(
+            ['email' => 'officer@strathmore.edu'],
+            [
+                'name' => 'Front Desk Officer',
+                'role' => 'officer',
+                'password' => Hash::make('Demo1234'),
+            ]
+        );
     }
 }

@@ -71,21 +71,28 @@
             <div class="flex flex-wrap gap-2">
                 @if ($item->status === 'active')
                     <a href="{{ route('disposal.index') }}" class="px-3 py-2 rounded-md bg-brand-red text-white text-sm font-medium">View disposal batch</a>
-                    <form method="POST" action="{{ route('items.claim', $item) }}">
-                        @csrf
-                        <button type="submit" class="px-3 py-2 rounded-md border dark:border-slate-600 text-sm">Mark as collected</button>
-                    </form>
+                    @can('claim', $item)
+                        <form method="POST" action="{{ route('items.claim', $item) }}">
+                            @csrf
+                            <button type="submit" class="px-3 py-2 rounded-md border dark:border-slate-600 text-sm">Mark as collected</button>
+                        </form>
+                    @endcan
                 @endif
                 <a href="{{ route('items.edit', $item) }}" class="px-3 py-2 rounded-md border dark:border-slate-600 text-sm inline-flex items-center gap-1.5">
                     <x-icon name="pencil" class="w-3.5 h-3.5" /> Edit
                 </a>
-                <form method="POST" action="{{ route('items.destroy', $item) }}" onsubmit="return confirm('Remove {{ $item->reference }} from the registry? This cannot be undone.');">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="px-3 py-2 rounded-md border border-red-300 text-red-600 dark:border-red-700 dark:text-red-400 text-sm inline-flex items-center gap-1.5">
-                        <x-icon name="trash" class="w-3.5 h-3.5" /> Delete
-                    </button>
-                </form>
+                <a href="{{ route('items.qr-card', $item) }}" target="_blank" class="px-3 py-2 rounded-md border dark:border-slate-600 text-sm inline-flex items-center gap-1.5">
+                    <x-icon name="scan-search" class="w-3.5 h-3.5" /> Print QR desk card
+                </a>
+                @can('delete', $item)
+                    <form method="POST" action="{{ route('items.destroy', $item) }}" onsubmit="return confirm('Remove {{ $item->reference }} from the registry? This cannot be undone.');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="px-3 py-2 rounded-md border border-red-300 text-red-600 dark:border-red-700 dark:text-red-400 text-sm inline-flex items-center gap-1.5">
+                            <x-icon name="trash" class="w-3.5 h-3.5" /> Delete
+                        </button>
+                    </form>
+                @endcan
             </div>
         </div>
     </div>

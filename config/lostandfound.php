@@ -17,7 +17,18 @@ return [
         'office' => env('LNF_OFFICE_EMAIL', 'lostandfound@strathmore.edu'),
         'communications' => env('LNF_COMMS_EMAIL', 'communications@strathmore.edu'),
         'outreach' => env('LNF_OUTREACH_EMAIL', 'outreach.club@strathmore.edu'),
+        // Communications normally re-broadcasts to students themselves; this is the
+        // address the automated "1 week left" student notice is sent to (a mailing
+        // list / distribution group), since the system has no individual student
+        // directory to email one-by-one.
+        'students_list' => env('LNF_STUDENTS_LIST_EMAIL', 'students-announce@strathmore.edu'),
     ],
+
+    // Automatically run the disposal cycle (send notices, release batches) on a
+    // schedule instead of requiring an officer to click through the workflow.
+    // See routes/console.php (Schedule::command(...)) and
+    // app/Console/Commands/ProcessDisposalCycle.php.
+    'automation_enabled' => env('LNF_AUTOMATION_ENABLED', true),
 
     'categories' => ['Electronics', 'Personal', 'Clothing', 'Stationery', 'Accessories', 'Bags', 'Documents', 'Other'],
 

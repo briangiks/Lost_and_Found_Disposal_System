@@ -73,6 +73,7 @@ class DashboardController extends Controller
                 'markings' => $markings ?? '',
                 'date_lost' => $dateLost ?? '',
             ],
+            'chartData' => ReportController::monthlyChartData(),
         ]);
     }
 }

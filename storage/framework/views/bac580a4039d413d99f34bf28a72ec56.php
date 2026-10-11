@@ -154,6 +154,14 @@
         </div>
     </div>
 
+    <div class="rounded-lg border bg-white dark:bg-slate-800 dark:border-slate-700 p-5">
+        <div class="flex items-center justify-between mb-3">
+            <h2 class="font-semibold text-sm">Last 6 months · logged vs. claimed vs. disposed</h2>
+            <a href="<?php echo e(route('reports.index')); ?>" class="text-xs text-brand-blue hover:underline">Full reports →</a>
+        </div>
+        <canvas id="monthlyChart" height="90"></canvas>
+    </div>
+
     <form method="GET" action="<?php echo e(route('dashboard')); ?>" class="rounded-lg border bg-white dark:bg-slate-800 dark:border-slate-700 p-4 space-y-3">
         <div class="flex items-center gap-2 text-sm font-medium"><?php if (isset($component)) { $__componentOriginalce262628e3a8d44dc38fd1f3965181bc = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginalce262628e3a8d44dc38fd1f3965181bc = $attributes; } ?>
@@ -294,6 +302,28 @@
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+    const chartData = <?php echo json_encode($chartData, 15, 512) ?>;
+    const ctx = document.getElementById('monthlyChart');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: chartData.labels,
+            datasets: [
+                { label: 'Logged', data: chartData.logged, backgroundColor: '#2b4c7e' },
+                { label: 'Claimed', data: chartData.claimed, backgroundColor: '#10b981' },
+                { label: 'Disposed', data: chartData.disposed, backgroundColor: '#b5253b' },
+            ],
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom' } },
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+        },
+    });
+</script>
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Lost and Found Disposal System\resources\views/dashboard/index.blade.php ENDPATH**/ ?>

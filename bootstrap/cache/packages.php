@@ -1,4 +1,27 @@
 <?php return array (
+  'barryvdh/laravel-dompdf' => 
+  array (
+    'aliases' => 
+    array (
+      'PDF' => 'Barryvdh\\DomPDF\\Facade\\Pdf',
+      'Pdf' => 'Barryvdh\\DomPDF\\Facade\\Pdf',
+    ),
+    'providers' => 
+    array (
+      0 => 'Barryvdh\\DomPDF\\ServiceProvider',
+    ),
+  ),
+  'f9webltd/simple-qrcode' => 
+  array (
+    'aliases' => 
+    array (
+      'QrCode' => 'F9WebLtd\\QrCode\\Facades\\QrCode',
+    ),
+    'providers' => 
+    array (
+      0 => 'F9WebLtd\\QrCode\\QrCodeServiceProvider',
+    ),
+  ),
   'laravel/sail' => 
   array (
     'providers' => 
@@ -11,6 +34,17 @@
     'providers' => 
     array (
       0 => 'Laravel\\Tinker\\TinkerServiceProvider',
+    ),
+  ),
+  'maatwebsite/excel' => 
+  array (
+    'aliases' => 
+    array (
+      'Excel' => 'Maatwebsite\\Excel\\Facades\\Excel',
+    ),
+    'providers' => 
+    array (
+      0 => 'Maatwebsite\\Excel\\ExcelServiceProvider',
     ),
   ),
   'nesbot/carbon' => 

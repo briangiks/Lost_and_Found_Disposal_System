@@ -78,6 +78,17 @@ class Item extends Model
         return $this->status === 'active' && $days >= $early && $days < $cutoff;
     }
 
+    /**
+     * Convenience wrapper around is_due_for_disposal — kept as an explicit
+     * method (rather than only the accessor) because it's the natural unit
+     * under test: an item becomes due the instant it reaches exactly
+     * `disposal_age_days` (90 by default), not a day before or after.
+     */
+    public function isDue(): bool
+    {
+        return $this->is_due_for_disposal;
+    }
+
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('status', 'active');

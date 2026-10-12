@@ -1,0 +1,61 @@
+# Render Blueprint — lets you create the web service + free database together
+# in one step via "New +" → "Blueprint" on render.com, instead of configuring
+# each by hand. See README.md "Deploying to Render" for the full walkthrough,
+# including the handful of values (APP_KEY, mail credentials, LNF_* addresses)
+# you still fill in yourself after this runs, since secrets don't belong in a
+# file committed to your repo.
+
+databases:
+  - name: strathmore-lost-found-db
+    plan: free
+    databaseName: strathmore_lost_found
+    user: strathmore
+
+services:
+  - type: web
+    name: strathmore-lost-found
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /up
+    envVars:
+      - key: APP_NAME
+        value: "Strathmore Lost & Found"
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        sync: false # paste the output of `php artisan key:generate --show` here in the dashboard
+      - key: APP_TIMEZONE
+        value: Africa/Nairobi
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DATABASE_URL
+        fromDatabase:
+          name: strathmore-lost-found-db
+          property: connectionString
+      # No persistent disk and no free background worker on Render's free
+      # tier, so sessions/cache live in Postgres (already migrated) instead
+      # of the filesystem, and queued jobs run inline rather than via a
+      # separate worker process.
+      - key: SESSION_DRIVER
+        value: database
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: FILESYSTEM_DISK
+        value: public
+      - key: MAIL_MAILER
+        sync: false # smtp or mailgun — see README
+      - key: LNF_OFFICE_EMAIL
+        sync: false
+      - key: LNF_COMMS_EMAIL
+        sync: false
+      - key: LNF_OUTREACH_EMAIL
+        sync: false
+      - key: LNF_STUDENTS_LIST_EMAIL
+        sync: false
+      - key: CRON_SECRET_TOKEN
+        generateValue: true # used by /cron/run-disposal-cycle — see README

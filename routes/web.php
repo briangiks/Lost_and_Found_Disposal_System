@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuditController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CronController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DisposalController;
 use App\Http\Controllers\EmailController;
@@ -13,6 +14,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect()->route('login'));
 
+// Token-protected — see app/Http/Controllers/CronController.php. Lets a free
+// external cron-ping service drive the disposal cycle on hosts with no
+// native scheduler (e.g. Render's free tier).
+Route::get('/cron/run-disposal-cycle', [CronController::class, 'runDisposalCycle'])->name('cron.disposal-cycle');
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');

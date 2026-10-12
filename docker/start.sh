@@ -7,6 +7,9 @@ php artisan config:clear
 echo "Running database migrations..."
 php artisan migrate --force
 
+echo "Seeding demo data (safe to re-run — uses updateOrCreate, never duplicates)..."
+php artisan db:seed --force
+
 echo "Caching config/routes/views for production..."
 php artisan config:cache
 php artisan route:cache

@@ -46,6 +46,8 @@
         <div class="pointer-events-none absolute inset-0 opacity-30" style="background-image:radial-gradient(circle,#cbd5e1 1px,transparent 1px);background-size:22px 22px"></div>
 
         <form method="POST" action="{{ route('login.attempt') }}" class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 sm:p-10 space-y-6 border">
+            @csrf
+            
               @if ($errors->any())
                 <div class="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
                     @foreach ($errors->all() as $error)
@@ -53,6 +55,7 @@
                     @endforeach
                 </div>
             @endif
+            
             <div class="flex flex-col items-center text-center">
                 <div class="w-16 h-16 rounded-full bg-brand-red/10 flex items-center justify-center">
                     <x-icon name="user" class="w-8 h-8 text-brand-red" />

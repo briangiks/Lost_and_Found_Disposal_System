@@ -7,6 +7,7 @@ use App\Models\Item;
 use App\Services\DisposalWorkflowService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class DisposalController extends Controller
 {
@@ -48,7 +49,17 @@ class DisposalController extends Controller
     {
         $this->authorize('sendNotice', $batch);
 
-        $this->workflow->sendNotice($batch, Auth::id());
+        try {
+            $this->workflow->sendNotice($batch, Auth::id());
+        } catch (\Throwable $e) {
+            Log::error('Disposal notice send failed.', ['batch_id' => $batch->id, 'error' => $e->getMessage()]);
+
+            return redirect()
+                ->route('disposal.index', ['compose' => 1])
+                ->with('error', 'Could not send the notice email — the mail server did not respond. '.
+                    'Nothing was changed, so it is safe to try again. If this keeps happening, '.
+                    'double-check MAIL_MAILER and the SMTP/Mailgun credentials.');
+        }
 
         return redirect()
             ->route('disposal.index')
@@ -71,7 +82,16 @@ class DisposalController extends Controller
 
         $releasedCount = $batch->items()->where('status', 'active')->count();
 
-        $this->workflow->release($batch);
+        try {
+            $this->workflow->release($batch);
+        } catch (\Throwable $e) {
+            Log::error('Disposal batch release failed.', ['batch_id' => $batch->id, 'error' => $e->getMessage()]);
+
+            return redirect()
+                ->route('disposal.index')
+                ->with('error', 'Could not send the handover email — the mail server did not respond. '.
+                    'Nothing was changed, so it is safe to try again.');
+        }
 
         return redirect()
             ->route('disposal.index')

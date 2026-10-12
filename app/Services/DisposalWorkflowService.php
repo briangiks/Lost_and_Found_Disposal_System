@@ -10,6 +10,8 @@ use App\Models\Item;
 use App\Models\User;
 use App\Notifications\DisposalBatchStageChangedNotification;
 use App\Notifications\ItemApproachingDisposalNotification;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 
@@ -42,6 +44,18 @@ class DisposalWorkflowService
 
     /**
      * Stage 2 -> notify Communications + students and open the 7-day pickup window.
+     *
+     * Wrapped in a DB transaction: on QUEUE_CONNECTION=sync (the default, and
+     * the only option on hosts with no free queue worker, e.g. Render's free
+     * tier), the dispatched mail jobs below actually run inline, during this
+     * same request — so if the mail server hiccups and throws, we need the
+     * batch/item changes above it to roll back too. Without this, a failed
+     * send still leaves the batch stuck in "pickup_window" with the email
+     * never having gone out, and the next click silently skips re-sending it
+     * because the stage guard above no longer matches.
+     *
+     * @throws \Throwable re-thrown after rollback so the controller can show
+     *                     a friendly error instead of a raw 500 page.
      */
     public function sendNotice(DisposalBatch $batch, ?int $officerId = null): DisposalBatch
     {
@@ -49,24 +63,35 @@ class DisposalWorkflowService
             return $batch;
         }
 
-        $handoverAt = now()->addDays((int) config('lostandfound.pickup_window_days', 7));
+        return DB::transaction(function () use ($batch, $officerId) {
+            $handoverAt = now()->addDays((int) config('lostandfound.pickup_window_days', 7));
 
-        $batch->update([
-            'stage' => 'pickup_window',
-            'notice_sent_at' => now(),
-            'handover_due_at' => $handoverAt,
-            'officer_id' => $officerId,
-        ]);
+            $batch->update([
+                'stage' => 'pickup_window',
+                'notice_sent_at' => now(),
+                'handover_due_at' => $handoverAt,
+                'officer_id' => $officerId,
+            ]);
 
-        // Snapshot every currently-due item into this batch.
-        Item::dueForDisposal()->update(['disposal_batch_id' => $batch->id]);
+            // Snapshot every currently-due item into this batch.
+            Item::dueForDisposal()->update(['disposal_batch_id' => $batch->id]);
 
-        SendDisposalNoticeJob::dispatch($batch);
-        SendStudentNoticeJob::dispatch($batch);
+            try {
+                SendDisposalNoticeJob::dispatch($batch);
+                SendStudentNoticeJob::dispatch($batch);
+            } catch (\Throwable $e) {
+                Log::error('Failed to send disposal notice emails — rolling back batch stage.', [
+                    'batch_id' => $batch->id,
+                    'error' => $e->getMessage(),
+                ]);
 
-        $this->notifyOfficers($batch, 'Disposal notice sent to Communications and students. The 7-day pickup window has started.');
+                throw $e; // rolls back the transaction; caller decides what the user sees
+            }
 
-        return $batch->fresh();
+            $this->notifyOfficers($batch, 'Disposal notice sent to Communications and students. The 7-day pickup window has started.');
+
+            return $batch->fresh();
+        });
     }
 
     /** Demo-only: fast-forward the 7-day pickup window. */
@@ -83,7 +108,10 @@ class DisposalWorkflowService
 
     /**
      * Stage 4 -> release remaining unclaimed items to Community Outreach and
-     * open the next quarterly cycle.
+     * open the next quarterly cycle. See sendNotice() above for why this is
+     * wrapped in a transaction.
+     *
+     * @throws \Throwable
      */
     public function release(DisposalBatch $batch): DisposalBatch
     {
@@ -91,20 +119,31 @@ class DisposalWorkflowService
             return $batch;
         }
 
-        $releasedCount = $batch->items()->where('status', 'active')->count();
+        return DB::transaction(function () use ($batch) {
+            $releasedCount = $batch->items()->where('status', 'active')->count();
 
-        $batch->items()->where('status', 'active')->update(['status' => 'donated']);
+            $batch->items()->where('status', 'active')->update(['status' => 'donated']);
 
-        $batch->update([
-            'stage' => 'released',
-            'released_at' => now(),
-        ]);
+            $batch->update([
+                'stage' => 'released',
+                'released_at' => now(),
+            ]);
 
-        SendOutreachHandoverJob::dispatch($batch, $releasedCount);
+            try {
+                SendOutreachHandoverJob::dispatch($batch, $releasedCount);
+            } catch (\Throwable $e) {
+                Log::error('Failed to send outreach handover email — rolling back batch release.', [
+                    'batch_id' => $batch->id,
+                    'error' => $e->getMessage(),
+                ]);
 
-        $this->notifyOfficers($batch, "Batch #{$batch->reference} archived — {$releasedCount} item(s) handed over to Community Outreach.");
+                throw $e;
+            }
 
-        return $batch->fresh();
+            $this->notifyOfficers($batch, "Batch #{$batch->reference} archived — {$releasedCount} item(s) handed over to Community Outreach.");
+
+            return $batch->fresh();
+        });
     }
 
     /**

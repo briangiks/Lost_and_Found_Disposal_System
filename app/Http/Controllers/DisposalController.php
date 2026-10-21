@@ -56,9 +56,8 @@ class DisposalController extends Controller
 
             return redirect()
                 ->route('disposal.index', ['compose' => 1])
-                ->with('error', 'Could not send the notice email — the mail server did not respond. '.
-                    'Nothing was changed, so it is safe to try again. If this keeps happening, '.
-                    'double-check MAIL_MAILER and the SMTP/Mailgun credentials.');
+                ->with('error', 'Could not send the notice email. Nothing was changed, so it is safe to try again.'.
+                    "\n\nActual error from the mail server: ".$e->getMessage());
         }
 
         return redirect()
@@ -89,8 +88,8 @@ class DisposalController extends Controller
 
             return redirect()
                 ->route('disposal.index')
-                ->with('error', 'Could not send the handover email — the mail server did not respond. '.
-                    'Nothing was changed, so it is safe to try again.');
+                ->with('error', 'Could not send the handover email. Nothing was changed, so it is safe to try again.'.
+                    "\n\nActual error from the mail server: ".$e->getMessage());
         }
 
         return redirect()

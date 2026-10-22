@@ -34,7 +34,7 @@ class SendStudentNoticeJob implements ShouldQueue
         // the web request — so a one-off slow/dropped connection to the mail
         // server shouldn't fail the whole thing. Try up to 3 times, 3
         // seconds apart, before actually giving up.
-        retry(3, fn () => Mail::to($to)->send($mailable), 3000);
+        retry(2, fn () => Mail::to($to)->send($mailable), 1000);
 
         SentEmail::create([
             'type' => 'student_notice',

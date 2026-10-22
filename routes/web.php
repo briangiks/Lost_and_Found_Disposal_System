@@ -18,6 +18,7 @@ Route::get('/', fn () => redirect()->route('login'));
 // external cron-ping service drive the disposal cycle on hosts with no
 // native scheduler (e.g. Render's free tier).
 Route::get('/cron/run-disposal-cycle', [CronController::class, 'runDisposalCycle'])->name('cron.disposal-cycle');
+Route::get('/cron/run-queue', [CronController::class, 'runQueue'])->name('cron.run-queue');
 Route::get('/diagnostics/test-mail', [CronController::class, 'testMail'])->name('diagnostics.test-mail');
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');

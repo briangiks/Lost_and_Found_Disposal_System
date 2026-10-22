@@ -151,7 +151,7 @@
         <div class="mx-auto max-w-7xl w-full px-4 sm:px-6 pt-4">
             <div class="rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 px-4 py-3 text-sm text-red-700 dark:text-red-300 flex items-start gap-2">
                 <x-icon name="alert-triangle" class="w-4 h-4 shrink-0 mt-0.5" />
-                {{ session('error') }}
+                <span class="whitespace-pre-line">{{ session('error') }}</span>
             </div>
         </div>
     @endif

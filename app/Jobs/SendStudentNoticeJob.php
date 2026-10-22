@@ -30,7 +30,11 @@ class SendStudentNoticeJob implements ShouldQueue
             $mailable->replyTo($replyTo);
         }
 
-        Mail::to($to)->send($mailable);
+        // A free host with no dedicated mail worker sends this live, inside
+        // the web request — so a one-off slow/dropped connection to the mail
+        // server shouldn't fail the whole thing. Try up to 3 times, 3
+        // seconds apart, before actually giving up.
+        retry(2, fn () => Mail::to($to)->send($mailable), 1000);
 
         SentEmail::create([
             'type' => 'student_notice',

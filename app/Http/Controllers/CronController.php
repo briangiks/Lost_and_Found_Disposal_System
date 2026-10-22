@@ -42,6 +42,20 @@ class CronController extends Controller
      * done debugging — it's token-protected, but there's no reason to leave
      * a mail-sending diagnostic endpoint reachable long-term.
      */
+
+    public function runQueue(Request $request)
+    {
+        $this->checkToken($request);
+
+        Artisan::call('queue:work', [
+            '--stop-when-empty' => true,
+            '--tries' => 3,
+            '--timeout' => 60,
+        ]);
+
+        return response(Artisan::output(), 200)->header('Content-Type', 'text/plain');
+    }
+    
     public function testMail(Request $request)
     {
         $this->checkToken($request);

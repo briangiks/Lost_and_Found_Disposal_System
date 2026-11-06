@@ -34,11 +34,7 @@ class SendOutreachHandoverJob implements ShouldQueue
             $mailable->replyTo($replyTo);
         }
 
-        // A free host with no dedicated mail worker sends this live, inside
-        // the web request — so a one-off slow/dropped connection to the mail
-        // server shouldn't fail the whole thing. Try up to 3 times, 3
-        // seconds apart, before actually giving up.
-        retry(2, fn () => Mail::to($to)->cc($cc)->send($mailable), 1000);
+        Mail::to($to)->cc($cc)->send($mailable);
 
         SentEmail::create([
             'type' => 'outreach_handover',

@@ -4,13 +4,15 @@
     "description": "Strathmore University Lost & Found Disposal System built on Laravel.",
     "keywords": ["laravel", "lost-and-found", "strathmore"],
     "license": "MIT",
-    "require": {
+        "require": {
         "php": "^8.2",
         "laravel/framework": "^11.31",
         "laravel/tinker": "^2.9",
         "barryvdh/laravel-dompdf": "^3.1",
         "maatwebsite/excel": "^3.1",
-        "f9webltd/simple-qrcode": "^5.0"
+        "f9webltd/simple-qrcode": "^5.0",
+        "symfony/mailgun-mailer": "^7.0",
+        "symfony/http-client": "^7.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

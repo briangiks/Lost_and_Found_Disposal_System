@@ -174,7 +174,7 @@
                 <div><span class="text-slate-500 dark:text-slate-400">To:</span> {{ $outreachEmail }}</div>
                 <div><span class="text-slate-500 dark:text-slate-400">Subject:</span> Disposed items — handover for donation</div>
                 <hr class="my-2 border-slate-200 dark:border-slate-700">
-                @include('emails.templates.outreach_handover', ['officeLocation' => $officeLocation, 'releasedCount' => max(0, $totalToDispose - $collectedCount)])
+                @include('emails.templates.outreach_handover', ['officeLocation' => $officeLocation, 'releasedItems' => $dueItems, 'batchReference' => $batch->reference])
             </div>
             <div class="mt-4 rounded-md border dark:border-slate-700 p-4 bg-white dark:bg-slate-800">
                 <p class="text-sm text-slate-500 dark:text-slate-400">

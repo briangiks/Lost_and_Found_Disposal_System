@@ -45,14 +45,12 @@ class DisposalWorkflowService
     /**
      * Stage 2 -> notify Communications + students and open the 7-day pickup window.
      *
-     * Wrapped in a DB transaction: on QUEUE_CONNECTION=sync (the default, and
-     * the only option on hosts with no free queue worker, e.g. Render's free
-     * tier), the dispatched mail jobs below actually run inline, during this
-     * same request — so if the mail server hiccups and throws, we need the
-     * batch/item changes above it to roll back too. Without this, a failed
-     * send still leaves the batch stuck in "pickup_window" with the email
-     * never having gone out, and the next click silently skips re-sending it
-     * because the stage guard above no longer matches.
+     * Wrapped in a DB transaction: on QUEUE_CONNECTION=sync, the dispatched
+     * mail jobs below run inline, during this same request — so if the mail
+     * server throws, the batch/item changes above it need to roll back too,
+     * otherwise a failed send leaves the batch stuck in "pickup_window" with
+     * the email never having gone out, and the next click silently skips
+     * re-sending it because the stage guard above no longer matches.
      *
      * @throws \Throwable re-thrown after rollback so the controller can show
      *                     a friendly error instead of a raw 500 page.
@@ -64,7 +62,7 @@ class DisposalWorkflowService
         }
 
         return DB::transaction(function () use ($batch, $officerId) {
-            $handoverAt = now()->addDays((int) config('lostandfound.pickup_window_days', 7));
+            $handoverAt = now()->addDays(DisposalBatch::pickupWindowDays());
 
             $batch->update([
                 'stage' => 'pickup_window',
@@ -85,7 +83,7 @@ class DisposalWorkflowService
                     'error' => $e->getMessage(),
                 ]);
 
-                throw $e; // rolls back the transaction; caller decides what the user sees
+                throw $e;
             }
 
             $this->notifyOfficers($batch, 'Disposal notice sent to Communications and students. The 7-day pickup window has started.');
@@ -120,7 +118,11 @@ class DisposalWorkflowService
         }
 
         return DB::transaction(function () use ($batch) {
-            $releasedCount = $batch->items()->where('status', 'active')->count();
+            // Snapshot the items being released BEFORE the status update, so
+            // the handover email's itemized report lists exactly what went out
+            // in this batch (name/color/category/location/markings) rather
+            // than just a bare count.
+            $releasedItems = $batch->items()->where('status', 'active')->get();
 
             $batch->items()->where('status', 'active')->update(['status' => 'donated']);
 
@@ -130,7 +132,7 @@ class DisposalWorkflowService
             ]);
 
             try {
-                SendOutreachHandoverJob::dispatch($batch, $releasedCount);
+                SendOutreachHandoverJob::dispatch($batch, $releasedItems);
             } catch (\Throwable $e) {
                 Log::error('Failed to send outreach handover email — rolling back batch release.', [
                     'batch_id' => $batch->id,
@@ -140,7 +142,7 @@ class DisposalWorkflowService
                 throw $e;
             }
 
-            $this->notifyOfficers($batch, "Batch #{$batch->reference} archived — {$releasedCount} item(s) handed over to Community Outreach.");
+            $this->notifyOfficers($batch, "Batch #{$batch->reference} archived — {$releasedItems->count()} item(s) handed over to Community Outreach.");
 
             return $batch->fresh();
         });

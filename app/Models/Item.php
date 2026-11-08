@@ -35,6 +35,22 @@ class Item extends Model
         return $this->belongsTo(DisposalBatch::class);
     }
 
+    /**
+     * How many days an item may sit in custody before it's due for
+     * disposal. Admin-editable on the Settings page (see SettingsController)
+     * — falls back to LNF_DISPOSAL_AGE_DAYS / 90 until an admin has ever
+     * saved an override.
+     */
+    public static function disposalAgeDays(): int
+    {
+        return Setting::getInt('disposal_age_days', (int) config('lostandfound.disposal_age_days', 90));
+    }
+
+    public static function earlyWarningDays(): int
+    {
+        return Setting::getInt('early_warning_days', (int) config('lostandfound.early_warning_days', 83));
+    }
+
     /** Number of whole days since this item was logged as lost. */
     public function getAgeInDaysAttribute(): int
     {
@@ -43,14 +59,13 @@ class Item extends Model
 
     /**
      * Age band used for the registry's status chip:
-     * "fresh" (<30d), "within_quarter" (30-89d), "due" (90d+).
+     * "fresh" (<30d), "within_quarter" (30d - cutoff), "due" (cutoff+).
      */
     public function getAgeBandAttribute(): string
     {
         $days = $this->age_in_days;
-        $disposalAge = (int) config('lostandfound.disposal_age_days', 90);
 
-        if ($days >= $disposalAge) {
+        if ($days >= static::disposalAgeDays()) {
             return 'due';
         }
 
@@ -64,16 +79,15 @@ class Item extends Model
     /** Whether the item has reached the quarterly disposal cut-off. */
     public function getIsDueForDisposalAttribute(): bool
     {
-        return $this->status === 'active'
-            && $this->age_in_days >= (int) config('lostandfound.disposal_age_days', 90);
+        return $this->status === 'active' && $this->age_in_days >= static::disposalAgeDays();
     }
 
     /** Whether the item is inside the "one week to disposal" early-warning band. */
     public function getIsApproachingDisposalAttribute(): bool
     {
         $days = $this->age_in_days;
-        $early = (int) config('lostandfound.early_warning_days', 83);
-        $cutoff = (int) config('lostandfound.disposal_age_days', 90);
+        $early = static::earlyWarningDays();
+        $cutoff = static::disposalAgeDays();
 
         return $this->status === 'active' && $days >= $early && $days < $cutoff;
     }
@@ -96,7 +110,7 @@ class Item extends Model
 
     public function scopeDueForDisposal(Builder $query): Builder
     {
-        $cutoff = now()->subDays((int) config('lostandfound.disposal_age_days', 90))->toDateString();
+        $cutoff = now()->subDays(static::disposalAgeDays())->toDateString();
 
         return $query->where('status', 'active')->whereDate('date_lost', '<=', $cutoff);
     }

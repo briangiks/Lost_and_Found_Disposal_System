@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DisposalBatch;
+use App\Models\Item;
 use App\Models\SentEmail;
 use Illuminate\Http\Request;
 
@@ -18,7 +19,7 @@ class EmailController extends Controller
         }
 
         $latestBatch = DisposalBatch::latest()->first();
-        $handoverDate = $latestBatch?->handover_due_at ?? now()->addDays((int) config('lostandfound.pickup_window_days', 7));
+        $handoverDate = $latestBatch?->handover_due_at ?? now()->addDays(DisposalBatch::pickupWindowDays());
 
         $sent = SentEmail::where('type', $activeType)->latest('sent_at')->first();
 
@@ -83,7 +84,10 @@ class EmailController extends Controller
                 'to' => implode(', ', config('lostandfound.emails.outreach')),
                 'cc' => $office,
                 'subject' => 'Disposed items — handover for donation',
-                'body' => view('emails.templates.outreach_handover', ['officeLocation' => $officeLocation, 'releasedCount' => null])->render(),
+                'body' => view('emails.templates.outreach_handover', [
+                    'officeLocation' => $officeLocation,
+                    'releasedItems' => Item::dueForDisposal()->orderBy('location')->get(),
+                ])->render(),
                 'is_live' => false,
                 'sent_at' => null,
             ],

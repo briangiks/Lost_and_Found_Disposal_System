@@ -30,7 +30,7 @@ class SendStudentNoticeJob implements ShouldQueue
             $mailable->replyTo($replyTo);
         }
 
-        Mail::to($to)->send($mailable);
+        retry(2, fn () => Mail::to($to)->send($mailable), 1000);
 
         SentEmail::create([
             'type' => 'student_notice',

@@ -3,7 +3,7 @@
         'name' => 'strathmore/lost-and-found',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'bc29d38f88e4e57de0af54f8d6a9f6a580153ace',
+        'reference' => '518796f3d6070ab7440d96f714c4e7d2223658b3',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -707,9 +707,9 @@
             'dev_requirement' => true,
         ),
         'nunomaduro/termwind' => array(
-            'pretty_version' => 'v2.4.0',
-            'version' => '2.4.0.0',
-            'reference' => '712a31b768f5daea284c2169a7d227031001b9a8',
+            'pretty_version' => 'v2.4.1',
+            'version' => '2.4.1.0',
+            'reference' => '9b85ae4d802403bfc004ea633ce542bc262ee5c3',
             'type' => 'library',
             'install_path' => __DIR__ . '/../nunomaduro/termwind',
             'aliases' => array(),
@@ -746,9 +746,9 @@
             ),
         ),
         'phpoffice/phpspreadsheet' => array(
-            'pretty_version' => '1.30.7',
-            'version' => '1.30.7.0',
-            'reference' => 'f5dd9c1f084d336ea63cf53099533e061a9c157a',
+            'pretty_version' => '1.30.8',
+            'version' => '1.30.8.0',
+            'reference' => '8cbf46b81d25f5e8af8b5710b841ec0462c63421',
             'type' => 'library',
             'install_path' => __DIR__ . '/../phpoffice/phpspreadsheet',
             'aliases' => array(),
@@ -919,8 +919,8 @@
         'psr/log-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '3.0.0',
-                1 => '1.0|2.0|3.0',
+                0 => '1.0|2.0|3.0',
+                1 => '3.0.0',
             ),
         ),
         'psr/simple-cache' => array(
@@ -1142,7 +1142,7 @@
         'strathmore/lost-and-found' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'bc29d38f88e4e57de0af54f8d6a9f6a580153ace',
+            'reference' => '518796f3d6070ab7440d96f714c4e7d2223658b3',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

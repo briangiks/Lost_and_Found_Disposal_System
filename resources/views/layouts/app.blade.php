@@ -60,6 +60,9 @@
                         ['route' => 'audit.index', 'label' => 'Audit Log', 'icon' => 'clipboard-list'],
                         ['route' => 'reports.index', 'label' => 'Reports', 'icon' => 'package'],
                     ];
+                    if (auth()->user()?->isAdmin()) {
+                        $navItems[] = ['route' => 'settings.edit', 'label' => 'Settings', 'icon' => 'settings'];
+                    }
                 @endphp
                 @foreach ($navItems as $item)
                     <a href="{{ route($item['route']) }}"

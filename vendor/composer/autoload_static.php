@@ -429,8 +429,8 @@ class ComposerStaticInit07a05db23d5b32fadfbc5ccb2e1bfde8
         ),
         'Nette\\' => 
         array (
-            0 => __DIR__ . '/..' . '/nette/utils/src',
-            1 => __DIR__ . '/..' . '/nette/schema/src',
+            0 => __DIR__ . '/..' . '/nette/schema/src',
+            1 => __DIR__ . '/..' . '/nette/utils/src',
         ),
         'Monolog\\' => 
         array (
@@ -454,8 +454,8 @@ class ComposerStaticInit07a05db23d5b32fadfbc5ccb2e1bfde8
         ),
         'League\\Uri\\' => 
         array (
-            0 => __DIR__ . '/..' . '/league/uri-interfaces',
-            1 => __DIR__ . '/..' . '/league/uri',
+            0 => __DIR__ . '/..' . '/league/uri',
+            1 => __DIR__ . '/..' . '/league/uri-interfaces',
         ),
         'League\\MimeTypeDetection\\' => 
         array (
@@ -657,6 +657,7 @@ class ComposerStaticInit07a05db23d5b32fadfbc5ccb2e1bfde8
         'App\\Models\\DisposalBatch' => __DIR__ . '/../..' . '/app/Models/DisposalBatch.php',
         'App\\Models\\Item' => __DIR__ . '/../..' . '/app/Models/Item.php',
         'App\\Models\\SentEmail' => __DIR__ . '/../..' . '/app/Models/SentEmail.php',
+        'App\\Models\\Setting' => __DIR__ . '/../..' . '/app/Models/Setting.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
         'App\\Notifications\\DisposalBatchStageChangedNotification' => __DIR__ . '/../..' . '/app/Notifications/DisposalBatchStageChangedNotification.php',
         'App\\Notifications\\ItemApproachingDisposalNotification' => __DIR__ . '/../..' . '/app/Notifications/ItemApproachingDisposalNotification.php',
@@ -5969,6 +5970,7 @@ class ComposerStaticInit07a05db23d5b32fadfbc5ccb2e1bfde8
         'PhpOffice\\PhpSpreadsheet\\Shared\\OLERead' => __DIR__ . '/..' . '/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Shared/OLERead.php',
         'PhpOffice\\PhpSpreadsheet\\Shared\\OLE\\ChainedBlockStream' => __DIR__ . '/..' . '/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Shared/OLE/ChainedBlockStream.php',
         'PhpOffice\\PhpSpreadsheet\\Shared\\OLE\\PPS' => __DIR__ . '/..' . '/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Shared/OLE/PPS.php',
+        'PhpOffice\\PhpSpreadsheet\\Shared\\OLE\\PPSTreeNode' => __DIR__ . '/..' . '/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Shared/OLE/PPSTreeNode.php',
         'PhpOffice\\PhpSpreadsheet\\Shared\\OLE\\PPS\\File' => __DIR__ . '/..' . '/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Shared/OLE/PPS/File.php',
         'PhpOffice\\PhpSpreadsheet\\Shared\\OLE\\PPS\\Root' => __DIR__ . '/..' . '/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Shared/OLE/PPS/Root.php',
         'PhpOffice\\PhpSpreadsheet\\Shared\\PasswordHasher' => __DIR__ . '/..' . '/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Shared/PasswordHasher.php',

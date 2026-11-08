@@ -40,7 +40,13 @@ class SendDisposalNoticeJob implements ShouldQueue
             $mailable->replyTo($replyTo);
         }
 
-        Mail::to($to)->cc($cc)->send($mailable);
+        // A free host with no dedicated mail worker sends this live, inside
+        // the web request — so a one-off slow/dropped connection to the mail
+        // server shouldn't fail the whole thing. Try up to 2 times, 1 second
+        // apart, kept short on purpose (see MAIL_TIMEOUT in config/mail.php)
+        // so this can never run long enough for the platform itself to kill
+        // the request with a 504 before this code gets to respond.
+        retry(2, fn () => Mail::to($to)->cc($cc)->send($mailable), 1000);
 
         SentEmail::create([
             'type' => 'comms_notice',

@@ -83,5 +83,76 @@ class DisposalBatchSeeder extends Seeder
                 );
             }
         }
+
+        $this->generateRecentBatches($admin, $daysAgo);
+    }
+
+    /**
+     * The three hand-written batches above sit 6-12 months back, outside the
+     * dashboard chart's 6-month window — so on their own, the "Disposed"
+     * series on the dashboard would look empty for most of the chart. This
+     * adds one more batch roughly every month for the last ~5 months so
+     * every bar on the chart has real disposed-item data behind it.
+     */
+    private function generateRecentBatches(?User $admin, \Closure $daysAgo): void
+    {
+        $nameBank = [
+            ['Grey Hoodie', 'Grey', 'Clothing'], ['USB-C Charger', 'White', 'Electronics'],
+            ['Reading Glasses', 'Tortoise', 'Accessories'], ['Blue Backpack', 'Blue', 'Bags'],
+            ['Student ID Card', 'White', 'Documents'], ['Water Bottle', 'Silver', 'Personal'],
+            ['Scientific Calculator', 'Black', 'Stationery'], ['Wrist Watch', 'Black', 'Accessories'],
+            ['Rain Jacket', 'Navy', 'Clothing'], ['Earphones', 'White', 'Electronics'],
+            ['Umbrella', 'Black', 'Other'], ['Textbook', 'Blue', 'Stationery'],
+        ];
+        $locations = config('lostandfound.locations');
+
+        $recentBatches = [
+            ['ref' => 'B-015', 'cycle' => 'This quarter (older)', 'releasedDaysAgo' => 150, 'count' => 11],
+            ['ref' => 'B-016', 'cycle' => 'Last quarter', 'releasedDaysAgo' => 120, 'count' => 14],
+            ['ref' => 'B-017', 'cycle' => 'Two quarters ago', 'releasedDaysAgo' => 90, 'count' => 9],
+            ['ref' => 'B-018', 'cycle' => 'Three months back', 'releasedDaysAgo' => 60, 'count' => 13],
+            ['ref' => 'B-019', 'cycle' => 'Last month', 'releasedDaysAgo' => 30, 'count' => 10],
+        ];
+
+        $nextRef = 4000;
+
+        foreach ($recentBatches as $b) {
+            $releasedAt = $daysAgo($b['releasedDaysAgo']);
+
+            $batch = DisposalBatch::updateOrCreate(
+                ['reference' => $b['ref']],
+                [
+                    'cycle_label' => $b['cycle'],
+                    'stage' => 'released',
+                    'officer_id' => $admin?->id,
+                    'notice_sent_at' => $releasedAt->copy()->subDays(7),
+                    'handover_due_at' => $releasedAt,
+                    'released_at' => $releasedAt,
+                ]
+            );
+
+            for ($i = 0; $i < $b['count']; $i++) {
+                [$name, $color, $category] = $nameBank[array_rand($nameBank)];
+                $reference = 'LF-'.$nextRef;
+                $nextRef++;
+                // Items must already be ≥90 days old at the moment they were released.
+                $ageAtRelease = random_int(90, 130);
+
+                Item::updateOrCreate(
+                    ['reference' => $reference],
+                    [
+                        'name' => $name,
+                        'color' => $color,
+                        'category' => $category,
+                        'date_lost' => $releasedAt->copy()->subDays($ageAtRelease)->toDateString(),
+                        'location' => $locations[array_rand($locations)],
+                        'markings' => 'Handed over in batch #'.$b['ref'],
+                        'status' => 'donated',
+                        'reporter' => 'admin@strathmore.edu',
+                        'disposal_batch_id' => $batch->id,
+                    ]
+                );
+            }
+        }
     }
 }

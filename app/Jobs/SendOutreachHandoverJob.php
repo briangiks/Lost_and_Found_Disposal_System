@@ -7,6 +7,7 @@ use App\Models\DisposalBatch;
 use App\Models\SentEmail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -16,9 +17,10 @@ class SendOutreachHandoverJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    /** @param Collection<int, \App\Models\Item> $releasedItems the items actually handed over in this batch */
     public function __construct(
         public DisposalBatch $batch,
-        public int $releasedCount,
+        public Collection $releasedItems,
     ) {}
 
     public function handle(): void
@@ -28,13 +30,13 @@ class SendOutreachHandoverJob implements ShouldQueue
         $replyTo = config('lostandfound.emails.reply_to');
         $officeLocation = config('lostandfound.office_location');
 
-        $mailable = new OutreachHandoverMail($officeLocation, $this->releasedCount);
+        $mailable = new OutreachHandoverMail($officeLocation, $this->releasedItems, $this->batch->reference);
 
         if (! empty($replyTo)) {
             $mailable->replyTo($replyTo);
         }
 
-        Mail::to($to)->cc($cc)->send($mailable);
+        retry(2, fn () => Mail::to($to)->cc($cc)->send($mailable), 1000);
 
         SentEmail::create([
             'type' => 'outreach_handover',

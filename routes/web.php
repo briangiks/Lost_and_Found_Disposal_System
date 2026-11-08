@@ -10,6 +10,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\QrCodeController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SettingsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect()->route('login'));
@@ -20,6 +21,7 @@ Route::get('/', fn () => redirect()->route('login'));
 Route::get('/cron/run-disposal-cycle', [CronController::class, 'runDisposalCycle'])->name('cron.disposal-cycle');
 Route::get('/cron/run-queue', [CronController::class, 'runQueue'])->name('cron.run-queue');
 Route::get('/diagnostics/test-mail', [CronController::class, 'testMail'])->name('diagnostics.test-mail');
+
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
@@ -52,4 +54,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/export/pdf', [ReportController::class, 'exportPdf'])->name('reports.export-pdf');
     Route::get('/reports/export/excel', [ReportController::class, 'exportExcel'])->name('reports.export-excel');
+
+    Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');
+    Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
 });

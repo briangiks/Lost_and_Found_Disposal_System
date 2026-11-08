@@ -61,10 +61,19 @@
         </div>
     </div>
 
-    <div class="rounded-lg border bg-white dark:bg-slate-800 dark:border-slate-700 p-5">
-        <div class="flex items-center justify-between mb-3">
-            <h2 class="font-semibold text-sm">Last 6 months · logged vs. claimed vs. disposed</h2>
+        <div class="rounded-lg border bg-white dark:bg-slate-800 dark:border-slate-700 p-5" x-data="monthlyChartFilter()" x-init="init()">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <h2 class="font-semibold text-sm">Last 6 months · items by month</h2>
             <a href="{{ route('reports.index') }}" class="text-xs text-brand-blue hover:underline">Full reports →</a>
+        </div>
+        <div class="flex flex-wrap gap-1.5 mb-4">
+            @foreach (['all' => 'All', 'logged' => 'Logged', 'claimed' => 'Claimed', 'disposed' => 'Disposed'] as $key => $label)
+                <button type="button" @click="setFilter('{{ $key }}')"
+                        :class="active === '{{ $key }}' ? 'bg-brand-blue text-white border-brand-blue' : 'border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'"
+                        class="px-3 py-1.5 rounded-md text-xs font-medium border transition-colors">
+                    {{ $label }}
+                </button>
+            @endforeach
         </div>
         <canvas id="monthlyChart" height="90"></canvas>
     </div>
@@ -155,23 +164,46 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
-    const chartData = @json($chartData);
-    const ctx = document.getElementById('monthlyChart');
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: chartData.labels,
-            datasets: [
-                { label: 'Logged', data: chartData.logged, backgroundColor: '#2b4c7e' },
-                { label: 'Claimed', data: chartData.claimed, backgroundColor: '#10b981' },
-                { label: 'Disposed', data: chartData.disposed, backgroundColor: '#b5253b' },
-            ],
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { position: 'bottom' } },
-            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
-        },
-    });
+    function monthlyChartFilter() {
+        return {
+            active: 'all',
+            chart: null,
+            series: {
+                logged: { label: 'Logged', color: '#2b4c7e' },
+                claimed: { label: 'Claimed', color: '#10b981' },
+                disposed: { label: 'Disposed', color: '#b5253b' },
+            },
+            init() {
+                const chartData = @json($chartData);
+                const ctx = document.getElementById('monthlyChart');
+
+                this.chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: chartData.labels,
+                        datasets: Object.keys(this.series).map((key) => ({
+                            key,
+                            label: this.series[key].label,
+                            data: chartData[key],
+                            backgroundColor: this.series[key].color,
+                        })),
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { position: 'bottom' } },
+                        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+                    },
+                });
+            },
+            setFilter(key) {
+                this.active = key;
+                this.chart.data.datasets.forEach((dataset, i) => {
+                    const visible = key === 'all' || dataset.key === key;
+                    this.chart.setDatasetVisibility(i, visible);
+                });
+                this.chart.update();
+            },
+        };
+    }
 </script>
 @endsection

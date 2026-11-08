@@ -25,6 +25,12 @@ class DisposalBatch extends Model
         'released_at' => 'datetime',
     ];
 
+    /** Admin-editable on the Settings page — falls back to LNF_PICKUP_WINDOW_DAYS / 7. */
+    public static function pickupWindowDays(): int
+    {
+        return Setting::getInt('pickup_window_days', (int) config('lostandfound.pickup_window_days', 7));
+    }
+
     public function items()
     {
         return $this->hasMany(Item::class);

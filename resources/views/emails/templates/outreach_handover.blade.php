@@ -1,6 +1,4 @@
 @php
-    // Accepts either a real collection of Item models ($releasedItems) or
-    // nothing at all (a bare count-only preview before any batch exists).
     $releasedItems = $releasedItems ?? collect();
     $releasedCount = $releasedCount ?? $releasedItems->count();
 @endphp
@@ -19,31 +17,7 @@
 <p>📍 {{ $officeLocation }}</p>
 
 @if ($releasedItems->isNotEmpty())
-    <p style="margin-bottom:6px;"><strong>Itemized handover report</strong></p>
-    <table style="width:100%; border-collapse:collapse; font-size:13px; margin-bottom:12px;">
-        <thead>
-            <tr style="background:#f1f5f9; text-align:left;">
-                <th style="padding:6px 8px; border-bottom:1px solid #cbd5e1;">Reference</th>
-                <th style="padding:6px 8px; border-bottom:1px solid #cbd5e1;">Item</th>
-                <th style="padding:6px 8px; border-bottom:1px solid #cbd5e1;">Color</th>
-                <th style="padding:6px 8px; border-bottom:1px solid #cbd5e1;">Category</th>
-                <th style="padding:6px 8px; border-bottom:1px solid #cbd5e1;">Date lost</th>
-                <th style="padding:6px 8px; border-bottom:1px solid #cbd5e1;">Location</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($releasedItems as $item)
-                <tr>
-                    <td style="padding:6px 8px; border-bottom:1px solid #e2e8f0;">{{ $item->reference }}</td>
-                    <td style="padding:6px 8px; border-bottom:1px solid #e2e8f0;">{{ $item->name }}</td>
-                    <td style="padding:6px 8px; border-bottom:1px solid #e2e8f0;">{{ $item->color }}</td>
-                    <td style="padding:6px 8px; border-bottom:1px solid #e2e8f0;">{{ $item->category }}</td>
-                    <td style="padding:6px 8px; border-bottom:1px solid #e2e8f0;">{{ $item->date_lost->toDateString() }}</td>
-                    <td style="padding:6px 8px; border-bottom:1px solid #e2e8f0;">{{ $item->location }}</td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
+    @include('emails.partials.manifest-table', ['items' => $releasedItems])
     <p style="font-size:12px; color:#64748b;">
         This list is also permanently recorded in the Lost &amp; Found system's audit log for university records.
     </p>

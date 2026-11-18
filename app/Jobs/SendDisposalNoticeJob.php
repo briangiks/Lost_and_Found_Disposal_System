@@ -34,7 +34,7 @@ class SendDisposalNoticeJob implements ShouldQueue
         $replyTo = config('lostandfound.emails.reply_to');
         $officeLocation = config('lostandfound.office_location');
 
-        $mailable = new DisposalNoticeMail($this->batch->handover_due_at, $officeLocation);
+        $mailable = new DisposalNoticeMail($this->batch->handover_due_at, $officeLocation, $this->batch->items);
 
         if (! empty($replyTo)) {
             $mailable->replyTo($replyTo);

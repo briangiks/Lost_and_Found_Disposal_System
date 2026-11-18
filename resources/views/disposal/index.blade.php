@@ -111,7 +111,7 @@
                 <div><span class="text-slate-500 dark:text-slate-400">CC:</span> {{ $officeEmail }}</div>
                 <div><span class="text-slate-500 dark:text-slate-400">Subject:</span> Disposal Notice: Unclaimed Lost &amp; Found Items</div>
                 <hr class="my-2 border-slate-200 dark:border-slate-700">
-                @include('emails.templates.comms_notice', ['handoverDate' => now()->addDays((int) config('lostandfound.pickup_window_days', 7)), 'officeLocation' => $officeLocation])
+                                @include('emails.templates.comms_notice', ['handoverDate' => now()->addDays(\App\Models\DisposalBatch::pickupWindowDays()), 'officeLocation' => $officeLocation, 'items' => $dueItems])
             </div>
             <div class="flex justify-end mt-4 gap-2">
                 <a href="{{ route('disposal.index') }}" class="px-3 py-2 rounded-md border dark:border-slate-600 text-sm">Back</a>

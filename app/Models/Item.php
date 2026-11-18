@@ -46,6 +46,40 @@ class Item extends Model
         return Setting::getInt('disposal_age_days', (int) config('lostandfound.disposal_age_days', 90));
     }
 
+        /**
+     * Groups a collection of items the way the Community Outreach / Comms
+     * handover manifest is laid out: by category, then by item name within
+     * that category, counting how many of each — never listing individual
+     * items one by one.
+     *
+     * @param  \Illuminate\Support\Collection|\Illuminate\Database\Eloquent\Collection  $items
+     * @return array<string, array<string, int>> e.g. ['Electronics' => ['Mouse' => 20, 'Laptop Charger' => 12]]
+     */
+    public static function groupedManifest($items): array
+    {
+        $byCategory = $items->groupBy('category');
+
+        $order = array_values(array_unique(array_merge(
+            config('lostandfound.categories', []),
+            $byCategory->keys()->all()
+        )));
+
+        $manifest = [];
+
+        foreach ($order as $category) {
+            if (! $byCategory->has($category)) {
+                continue;
+            }
+
+            $manifest[$category] = $byCategory->get($category)
+                ->groupBy('name')
+                ->map(fn ($group) => $group->count())
+                ->all();
+        }
+
+        return $manifest;
+    }
+    
     public static function earlyWarningDays(): int
     {
         return Setting::getInt('early_warning_days', (int) config('lostandfound.early_warning_days', 83));

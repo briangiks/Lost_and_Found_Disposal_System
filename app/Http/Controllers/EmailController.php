@@ -66,7 +66,11 @@ class EmailController extends Controller
                 'to' => implode(', ', config('lostandfound.emails.communications')),
                 'cc' => $office,
                 'subject' => 'Disposal Notice: Unclaimed Lost & Found Items',
-                'body' => view('emails.templates.comms_notice', compact('handoverDate', 'officeLocation'))->render(),
+                'body' => view('emails.templates.comms_notice', [
+                    'handoverDate' => $handoverDate,
+                    'officeLocation' => $officeLocation,
+                    'items' => Item::dueForDisposal()->orderBy('location')->get(),
+                ])->render(),
                 'is_live' => false,
                 'sent_at' => null,
             ],

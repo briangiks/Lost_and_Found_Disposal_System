@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Collection;
@@ -22,11 +23,24 @@ class DisposalNoticeMail extends Mailable implements ShouldQueue
 
     public function build(): self
     {
-        return $this->subject('Disposal Notice: Unclaimed Lost & Found Items')
+        $mail = $this->subject('Disposal Notice: Unclaimed Lost & Found Items')
             ->view('emails.templates.comms_notice', [
                 'handoverDate' => $this->handoverDate,
                 'officeLocation' => $this->officeLocation,
-                'items' => $this->items,
+                'itemCount' => $this->items->count(),
             ]);
+
+        if ($this->items->isNotEmpty()) {
+            $pdf = Pdf::loadView('emails.templates.manifest-pdf', [
+                'items' => $this->items,
+                'monthLabel' => $this->handoverDate->format('F Y'),
+            ])->output();
+
+            $mail->attachData($pdf, 'unclaimed-items-'.$this->handoverDate->format('F-Y').'.pdf', [
+                'mime' => 'application/pdf',
+            ]);
+        }
+
+        return $mail;
     }
 }

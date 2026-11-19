@@ -79,7 +79,7 @@ class Item extends Model
 
         return $manifest;
     }
-    
+
     public static function earlyWarningDays(): int
     {
         return Setting::getInt('early_warning_days', (int) config('lostandfound.early_warning_days', 83));
@@ -159,7 +159,7 @@ class Item extends Model
         };
     }
 
-    public function imageUrl(): string
+        public function imageUrl(): string
     {
         if ($this->image_path) {
             return str_starts_with($this->image_path, 'http')
@@ -167,6 +167,21 @@ class Item extends Model
                 : asset('storage/'.$this->image_path);
         }
 
-        return asset('images/placeholder-item.svg');
+        return asset('images/categories/'.$this->categoryIconSlug().'.svg');
+    }
+
+    private function categoryIconSlug(): string
+    {
+        $slugs = [
+            'Electronics' => 'electronics',
+            'Personal' => 'personal',
+            'Clothing' => 'clothing',
+            'Stationery' => 'stationery',
+            'Accessories' => 'accessories',
+            'Bags' => 'bags',
+            'Documents' => 'documents',
+        ];
+
+        return $slugs[$this->category] ?? 'other';
     }
 }

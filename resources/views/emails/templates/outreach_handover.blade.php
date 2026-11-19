@@ -15,14 +15,9 @@
     @endif
 </p>
 <p>📍 {{ $officeLocation }}</p>
-
-@if ($releasedItems->isNotEmpty())
-    @include('emails.partials.manifest-table', ['items' => $releasedItems])
-    <p style="font-size:12px; color:#64748b;">
-        This list is also permanently recorded in the Lost &amp; Found system's audit log for university records.
-    </p>
+@if ($releasedCount)
+    <p>The itemized handover report is attached as a PDF for your records.</p>
 @else
     <p>These are general disposed items — the full manifest is stored in the audit log.</p>
 @endif
-
 <p>Thank you for the partnership.</p>

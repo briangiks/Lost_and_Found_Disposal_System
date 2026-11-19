@@ -21,6 +21,13 @@
         @endforeach
     </div>
 
+        @if (in_array($activeType, ['comms_notice', 'outreach_handover']))
+        <div class="rounded-md border border-brand-blue/30 bg-brand-blue/5 dark:bg-brand-blue/10 px-4 py-2.5 text-xs text-brand-bluedark dark:text-slate-100 flex items-center gap-2">
+            <x-icon name="clipboard-list" class="w-3.5 h-3.5 shrink-0" />
+            The itemized list is attached to this email as a PDF, not pasted into the body — the preview below only shows the email text.
+        </div>
+    @endif
+
     <div class="rounded-lg border bg-white dark:bg-slate-800 dark:border-slate-700 overflow-hidden">
         <div class="border-b dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 p-4 text-sm space-y-1">
             <div class="flex gap-2"><span class="text-slate-500 dark:text-slate-400 w-16">From:</span><span class="font-medium">{{ $preview['from'] }}</span></div>

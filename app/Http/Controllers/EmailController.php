@@ -69,7 +69,7 @@ class EmailController extends Controller
                 'body' => view('emails.templates.comms_notice', [
                     'handoverDate' => $handoverDate,
                     'officeLocation' => $officeLocation,
-                    'items' => Item::dueForDisposal()->orderBy('location')->get(),
+                    'itemCount' => Item::dueForDisposal()->count(),
                 ])->render(),
                 'is_live' => false,
                 'sent_at' => null,

@@ -29,6 +29,20 @@ return [
             'replace_placeholders' => true,
         ],
 
+        // Writes to stderr instead of a file — essential on a host like
+        // Render's free tier, where you have no shell to read
+        // storage/logs/laravel.log directly. Render's "Logs" tab captures
+        // stdout/stderr from the container, so this is what actually gets
+        // your real exception messages in front of you.
+        'stderr' => [
+            'driver' => 'monolog',
+            'handler' => StreamHandler::class,
+            'formatter' => env('LOG_STDERR_FORMATTER'),
+            'with' => [
+                'stream' => 'php://stderr',
+            ],
+        ],
+
         'daily' => [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),

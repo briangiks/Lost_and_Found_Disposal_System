@@ -113,9 +113,30 @@
     </form>
 
     <div class="rounded-lg border bg-white dark:bg-slate-800 dark:border-slate-700 overflow-hidden">
-        <div class="flex items-center justify-between p-4 border-b dark:border-slate-700">
+                <div class="flex flex-wrap items-center justify-between gap-2 p-4 border-b dark:border-slate-700">
             <h2 class="font-semibold">Lost items registry</h2>
-            <span class="text-xs text-slate-500 dark:text-slate-400">Showing {{ $items->count() }} of {{ $totalCount }}</span>
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-slate-500 dark:text-slate-400">
+                    @if ($items->total() > 0)
+                        Showing {{ $items->firstItem() }}–{{ $items->lastItem() }} of {{ $items->total() }}
+                    @else
+                        No items match these filters
+                    @endif
+                </span>
+                <label class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                    Show
+                    <select onchange="
+                        const url = new URL(window.location.href);
+                        url.searchParams.set('per_page', this.value);
+                        url.searchParams.delete('page');
+                        window.location.href = url.toString();
+                    " class="px-2 py-1 rounded-md border border-slate-300 dark:border-slate-600 dark:bg-slate-900 text-xs">
+                        @foreach ($perPageOptions as $opt)
+                            <option value="{{ $opt }}" @selected($perPage === $opt)>{{ $opt === 'all' ? 'All' : $opt }}</option>
+                        @endforeach
+                    </select>
+                </label>
+            </div>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
@@ -156,9 +177,14 @@
                     @empty
                         <tr><td colspan="9" class="px-4 py-12 text-center text-slate-500 dark:text-slate-400">No items match these filters.</td></tr>
                     @endforelse
-                </tbody>
+                                </tbody>
             </table>
         </div>
+        @if ($items->lastPage() > 1)
+            <div class="p-4 border-t dark:border-slate-700">
+                {{ $items->links() }}
+            </div>
+        @endif
     </div>
 </div>
 

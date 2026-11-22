@@ -41,7 +41,18 @@ class DashboardController extends Controller
             $query->whereDate('date_lost', $dateLost);
         }
 
-        $items = $query->orderByDesc('date_lost')->get();
+        $query->orderByDesc('date_lost');
+
+        $perPageOptions = ['10', '25', '50', '100', 'all'];
+        $perPage = (string) $request->get('per_page', '25');
+        if (! in_array($perPage, $perPageOptions, true)) {
+            $perPage = '25';
+        }
+
+        $matchingCount = (clone $query)->count();
+        $effectivePerPage = $perPage === 'all' ? max($matchingCount, 1) : (int) $perPage;
+
+        $items = $query->paginate($effectivePerPage)->withQueryString();
 
         $totalInCustody = Item::active()->count();
         $totalToDispose = Item::dueForDisposal()->count();
@@ -65,6 +76,8 @@ class DashboardController extends Controller
             'categories' => $categories,
             'colorOptions' => $colorOptions,
             'locationOptions' => $locationOptions,
+            'perPage' => $perPage,
+            'perPageOptions' => $perPageOptions,
             'filters' => [
                 'q' => $q ?? '',
                 'category' => $category ?? 'All',
